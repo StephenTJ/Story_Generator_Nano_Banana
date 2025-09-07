@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Story Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="header-text">
+                    <h1>AI Story Generator</h1>
+                    <p>Type a prompt, generate an illustrated story. After generation, use the viewer to read/listen and navigate scenes.</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                {% if api_ready %}
+                    <span class="status-success"><i class="fas fa-check-circle"></i> API Ready</span>
+                {% else %}
+                    <span class="status-error"><i class="fas fa-exclamation-circle"></i> Missing API Credentials</span>
+                {% endif %}
+            </div>
+            <div class="status-item">
+                <span class="status-info"><i class="fas fa-info-circle"></i> Outputs saved to ./outputs (images and texts)</span>
+            </div>
+        </div>
+
+        <!-- Input Form -->
+        <div class="input-section" id="inputSection">
+            <h2>Story Prompt</h2>
+            <form id="storyForm">
+                <div class="form-group">
+                    <label for="prompt">Prompt:</label>
+                    <textarea id="prompt" name="prompt" rows="5" placeholder="Enter your story prompt here...">{{ default_prompt }}</textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="desired_scenes">Desired Scenes:</label>
+                        <input type="number" id="desired_scenes" name="desired_scenes" min="2" max="12" value="{{ default_scenes }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tts_mode">TTS Mode:</label>
+                        <select id="tts_mode" name="tts_mode">
+                            <option value="server">Server (gTTS MP3)</option>
+                            <option value="browser">Browser (Web Speech API)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="generateBtn">
+                        <i class="fas fa-magic"></i> Generate Story
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="resetBtn">
+                        <i class="fas fa-refresh"></i> Reset
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Generating story... <span id="loadingText">Please wait</span></p>
+        </div>
+
+        <!-- Story Viewer -->
+        <div class="viewer-section" id="viewerSection" style="display: none;">
+            <div class="viewer-header">
+                <div class="viewer-info">
+                    <h2>Story Viewer</h2>
+                    <p id="sceneInfo">Scenes: <strong>0</strong> — use Prev/Next or open the in-browser player for auto-advance & natural TTS.</p>
+                </div>
+                <div class="viewer-actions">
+                    <button id="downloadBtn" class="btn btn-primary" style="display: none;">
+                        <i class="fas fa-download"></i> Download ZIP
+                    </button>
+                    <button id="newStoryBtn" class="btn btn-secondary">
+                        <i class="fas fa-plus"></i> New Story
+                    </button>
+                </div>
+            </div>
+
+            <!-- Basic Viewer Controls -->
+            <div class="basic-viewer">
+                <div class="scene-display">
+                    <div class="scene-image">
+                        <img id="currentImage" src="" alt="Scene image" style="display: none;">
+                        <div class="image-placeholder" id="imagePlaceholder">
+                            <i class="fas fa-image"></i>
+                            <p>No image available</p>
+                        </div>
+                    </div>
+                    <div class="scene-text" id="currentText">
+                        <!-- Scene text will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="viewer-controls">
+                    <button id="prevBtn" class="btn btn-control">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <button id="playBtn" class="btn btn-control">
+                        <i class="fas fa-play"></i> Play
+                    </button>
+                    <button id="nextBtn" class="btn btn-control">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <span class="scene-counter">Scene <span id="currentScene">1</span> of <span id="totalScenes">1</span></span>
+                </div>
+            </div>
+
+    
+        </div>
+
+        <!-- Error Messages -->
+        <div class="error-message" id="errorMessage" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorText"></span>
+        </div>
+
+        <!-- Success Messages -->
+        <div class="success-message" id="successMessage" style="display: none;">
+            <i class="fas fa-check-circle"></i>
+            <span id="successText"></span>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>AI Powered Story Generation</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
